@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>User Registration — SMTEC</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <main class="container">
+    <h1>User Registration</h1>
+
+    <form id="registerForm" novalidate>
+      <div class="field">
+        <label for="name">Full name</label>
+        <input id="name" name="name" type="text" required />
+        <small class="error" id="nameError"></small>
+      </div>
+
+      <div class="field">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" required />
+        <small class="error" id="emailError"></small>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" minlength="6" required />
+        <meter id="pwdStrength" min="0" max="4" value="0"></meter>
+        <small class="error" id="passwordError"></small>
+      </div>
+
+      <div class="field">
+        <label for="confirmPassword">Confirm password</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" required />
+        <small class="error" id="confirmPasswordError"></small>
+      </div>
+
+      <button type="submit" id="submitBtn">Register</button>
+
+      <div id="message" role="status"></div>
+    </form>
+
+    <footer>
+      <p>Deployed backend: <span id="backendUrl">REPLACE_WITH_BACKEND_URL</span></p>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
