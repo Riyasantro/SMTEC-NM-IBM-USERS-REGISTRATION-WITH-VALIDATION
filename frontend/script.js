@@ -1,7 +1,7 @@
 // ---- CONFIG ----
-const BACKEND_URL = "REPLACE_WITH_BACKEND_URL"; // e.g. https://smtec-user-reg-backend.onrender.com
+const BACKEND_URL = "https://smtec-user-registration-backend.onrender.com"; // replace with your backend URL
 
-// Elements
+// Element
 const form = document.getElementById('registerForm');
 const nameInput = document.getElementById('name');
 const emailInput = document.getElementById('email');
