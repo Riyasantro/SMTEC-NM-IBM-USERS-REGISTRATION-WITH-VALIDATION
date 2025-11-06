@@ -11,11 +11,12 @@ app.use(express.json());
 // ✅ Allow your Netlify frontend to access the backend
 app.use(
   cors({
-    origin: "https://deft-creponne-0154be.netlify.app", // your Netlify URL
+    origin: "https://deft-creponne-0154be.netlify.app",
     methods: ["GET", "POST"],
     credentials: true
   })
 );
+
 
 // ✅ MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI;
