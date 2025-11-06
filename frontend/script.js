@@ -1,105 +1,145 @@
-// ---- CONFIG ----
-const BACKEND_URL = "https://smtec-user-registration-backend.onrender.com"; // replace with your backend URL
+// --- UI Animation for Login/Register Switch ---
+const signUpButton = document.getElementById("signUp");
+const signInButton = document.getElementById("signIn");
+const container = document.getElementById("container");
 
-// Element
-const form = document.getElementById('registerForm');
-const nameInput = document.getElementById('name');
-const emailInput = document.getElementById('email');
-const pwdInput = document.getElementById('password');
-const confirmPwdInput = document.getElementById('confirmPassword');
-const msg = document.getElementById('message');
-
-const nameError = document.getElementById('nameError');
-const emailError = document.getElementById('emailError');
-const passwordError = document.getElementById('passwordError');
-const confirmPasswordError = document.getElementById('confirmPasswordError');
-const pwdStrength = document.getElementById('pwdStrength');
-document.getElementById('backendUrl').innerText = BACKEND_URL || 'REPLACE_WITH_BACKEND_URL';
-
-// Regex helpers
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-function passwordScore(password){
-  let score = 0;
-  if(password.length >= 6) score++;
-  if(/[A-Z]/.test(password)) score++;
-  if(/[0-9]/.test(password)) score++;
-  if(/[^A-Za-z0-9]/.test(password)) score++;
-  return score; // 0..4
-}
-
-function clearErrors(){
-  [nameError,emailError,passwordError,confirmPasswordError].forEach(e=> e.innerText = '');
-  msg.className = ''; msg.innerText = '';
-}
-
-function showMessage(text, type='success'){
-  msg.className = type === 'success' ? 'success' : 'error';
-  msg.innerText = text;
-}
-
-// Real-time validation
-emailInput.addEventListener('input', ()=>{
-  emailError.innerText = emailRegex.test(emailInput.value) ? '' : 'Enter a valid email';
+signUpButton.addEventListener("click", () => {
+  container.classList.add("right-panel-active");
 });
 
-pwdInput.addEventListener('input', ()=>{
-  const score = passwordScore(pwdInput.value);
-  pwdStrength.value = score;
-  if (pwdInput.value.length > 0 && score < 2) {
-    passwordError.innerText = 'Password is weak. Use letters, numbers and symbols.';
-  } else {
-    passwordError.innerText = '';
-  }
+signInButton.addEventListener("click", () => {
+  container.classList.remove("right-panel-active");
 });
 
-confirmPwdInput.addEventListener('input', ()=>{
-  confirmPasswordError.innerText = (pwdInput.value !== confirmPwdInput.value) ? "Passwords don't match" : '';
-});
+// --- Backend Connection (Render URL) ---
+const BACKEND_URL = "https://smtec-user-registration-backend.onrender.com";
 
-// Form submit
-form.addEventListener('submit', async (e)=>{
+// --- Registration Handler ---
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  clearErrors();
 
-  const name = nameInput.value.trim();
-  const email = emailInput.value.trim().toLowerCase();
-  const password = pwdInput.value;
-  const confirmPassword = confirmPwdInput.value;
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
 
-  // client-side validation
-  let hasError = false;
-  if(!name){ nameError.innerText = 'Name is required'; hasError = true; }
-  if(!email || !emailRegex.test(email)){ emailError.innerText = 'Valid email is required'; hasError = true; }
-  if(!password || password.length < 6){ passwordError.innerText = 'Password must be at least 6 characters'; hasError = true; }
-  if(password !== confirmPassword){ confirmPasswordError.innerText = 'Passwords do not match'; hasError = true; }
+  // Validation
+  if (!name || !email || !password || !confirmPassword) {
+    showPopup("All fields are required!", "error");
+    return;
+  }
 
-  if(hasError) return;
+  if (password.length < 8) {
+    showPopup("Password must be at least 8 characters long!", "error");
+    return;
+  }
 
-  // disable button to prevent duplicate requests
-  const submitBtn = document.getElementById('submitBtn');
-  submitBtn.disabled = true;
-  submitBtn.innerText = 'Registering...';
+  if (password !== confirmPassword) {
+    showPopup("Passwords do not match!", "error");
+    return;
+  }
 
   try {
-    const res = await fetch(`${BACKEND_URL}/api/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password })
+    const response = await fetch(`${BACKEND_URL}/api/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
     });
 
-    const data = await res.json();
-    if(res.ok){
-      showMessage(data.message || 'Registered successfully', 'success');
-      form.reset();
-      pwdStrength.value = 0;
+    if (response.ok) {
+      showPopup("Registration successful! You can now log in.", "success");
+      document.getElementById("registerForm").reset();
+      container.classList.remove("right-panel-active");
     } else {
-      showMessage(data.message || 'Registration failed', 'error');
+      const data = await response.json();
+      showPopup(data.message || "Registration failed.", "error");
     }
-  } catch (err) {
-    showMessage('Network error. Try again later.', 'error');
-    console.error(err);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.innerText = 'Register';
+  } catch (error) {
+    showPopup("Network error. Please try again later.", "error");
   }
 });
+
+// --- Login Handler ---
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  if (!email || !password) {
+    showPopup("Please fill in both email and password.", "error");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (response.ok) {
+      showPopup("Login successful! Redirecting...", "success");
+      document.getElementById("loginForm").reset();
+
+      // Simulate redirect
+      setTimeout(() => {
+        window.location.href = "dashboard.html"; // optional next page
+      }, 1500);
+    } else {
+      const data = await response.json();
+      showPopup(data.message || "Invalid credentials.", "error");
+    }
+  } catch (error) {
+    showPopup("Network error. Please try again later.", "error");
+  }
+});
+
+// --- Popup Notification Function ---
+function showPopup(message, type = "info") {
+  const popup = document.createElement("div");
+  popup.className = `popup ${type}`;
+  popup.textContent = message;
+  document.body.appendChild(popup);
+
+  setTimeout(() => {
+    popup.classList.add("show");
+  }, 50);
+
+  setTimeout(() => {
+    popup.classList.remove("show");
+    setTimeout(() => popup.remove(), 300);
+  }, 3000);
+}
+
+// --- Popup Styling ---
+const style = document.createElement("style");
+style.textContent = `
+.popup {
+  position: fixed;
+  top: 20px;
+  right: -400px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 500;
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: right 0.3s ease, opacity 0.3s;
+  z-index: 1000;
+  opacity: 0.95;
+}
+.popup.show {
+  right: 20px;
+}
+.popup.success {
+  background: #16a34a;
+}
+.popup.error {
+  background: #dc2626;
+}
+.popup.info {
+  background: #2563eb;
+}
+`;
+document.head.appendChild(style);
