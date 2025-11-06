@@ -79,14 +79,17 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     });
 
     if (response.ok) {
-      showPopup("Login successful! Redirecting...", "success");
-      document.getElementById("loginForm").reset();
+  const data = await response.json();
+  localStorage.setItem("loggedUser", JSON.stringify(data.user));
 
-      // Simulate redirect
-      setTimeout(() => {
-        window.location.href = "dashboard.html"; // optional next page
-      }, 1500);
-    } else {
+  showPopup("Login successful! Redirecting...", "success");
+  document.getElementById("loginForm").reset();
+
+  setTimeout(() => {
+    window.location.href = "dashboard.html";
+  }, 1500);
+}
+ else {
       const data = await response.json();
       showPopup(data.message || "Invalid credentials.", "error");
     }
