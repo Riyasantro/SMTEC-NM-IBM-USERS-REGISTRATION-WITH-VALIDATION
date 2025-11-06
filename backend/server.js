@@ -11,7 +11,7 @@ app.use(express.json());
 // ✅ Allow your Netlify frontend to access the backend
 app.use(
   cors({
-    origin: "https://deft-creponne-0154be.netlify.app",
+    origin: "https://user-registration-01.netlify.app",
     methods: ["GET", "POST"],
     credentials: true
   })
